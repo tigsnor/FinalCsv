@@ -76,23 +76,23 @@ public class DataInspection {
                     //contact null처리
                     String contact2 = "";
                     if (resultSet.getString("contact") != null) {
-                        contact2 = changeData(contactLimit(resultSet.getString("contact")));
+                        contact2 = resultSet.getString("contact");
                     }
 
                     //title이 null이면 content가 title 대체
-                    String content = changeData(emoji(resultSet.getString("content")));
-                    String title = changeData(textLimit(emoji(resultSet.getString("title"))));
+                    String content = resultSet.getString("content");
+                    String title = resultSet.getString("title");
                     if(title.isEmpty()){
-                        title = textLimit(content);
+                        title = content;
                     }
 
                     int seqNum = resultSet.getRow();
-                    String url= urlLimit(resultSet.getString("url"));
+                    String url= resultSet.getString("url");
                     String date = resultSet.getString("write_date");
                     String time = resultSet.getString("write_time");
-                    String channel = changeData(resultSet.getString("channel"));
-                    String name = changeData(resultSet.getString("writer_name"));
-                    String account = changeData(resultSet.getString("writer_account"));
+                    String channel = resultSet.getString("channel");
+                    String name = resultSet.getString("writer_name");
+                    String account = resultSet.getString("writer_account");
 
 
 
@@ -123,7 +123,7 @@ public class DataInspection {
         DateFormat dateParse = new SimpleDateFormat("yyyyMMdd");
         Date nwDate = new Date();
         String tbDate = dateParse.format(nwDate);
-        String path = "C:\\Users\\e2on\\Desktop\\csvTest\\"+name+"_"+tbDate+"_C_001";
+        String path = "C:\\Users\\e2on\\Desktop\\가공후파일\\"+name+"_"+tbDate+"_C_001";
         CSVWriter writer = new CSVWriter(new FileWriter(path+".csv"),',',
                 CSVWriter.NO_QUOTE_CHARACTER,
                 CSVWriter.NO_ESCAPE_CHARACTER);
@@ -157,100 +157,5 @@ public class DataInspection {
             return false;
         }
         return true;
-    }
-    // data 내부에있는 이모티콘을 제거
-    public String emoji(String data){
-        String removeEmoji = EmojiParser.removeAllEmojis(data);
-//        System.out.println(removeEmoji);
-        return removeEmoji;
-    }
-
-    //글길이를 60자로 제한
-    public String textLimit(String text){
-        if(text.length() >= 60){
-           String limitText = text.substring(0,60);
-           return limitText+"...";
-        }
-        return text;
-    }
-
-    //contact길이를 5000자로 제한
-    public String contactLimit(String text){
-        if(text.length() >= 5000){
-            String limitText = text.substring(0,4999);
-            return limitText;
-        }
-        return text;
-    }
-
-    //url길이를 254자로 제한
-    public String urlLimit(String text){
-        if(text.length() >= 254){
-            String limitText = text.substring(0,254);
-            return limitText;
-        }
-        return text;
-    }
-
-    //db writeTime의 시간형태를 변형
-    public String changeTime(String time){
-        DateFormat timeParse = new SimpleDateFormat("HHmm");
-        DateFormat timeFormat = new SimpleDateFormat("HH:mm");
-        String timeC=null;
-        try {
-            switch (time.length()) {
-                case 1:
-                    time = "000" + time;
-                    break;
-                case 2:
-                    time = "00" + time;
-                    break;
-                case 3:
-                    time = "00" + time;
-                    break;
-            }
-        }catch (NullPointerException e){
-//            System.out.println("널");
-            return null;
-        }
-        try {
-            Date timePar = timeParse.parse(time);
-            timeC = timeFormat.format(timePar);
-//            System.out.println(timeC);
-        }
-        catch (ParseException e){
-            System.out.println(e);
-        }finally {
-            return timeC;
-        }
-
-    }
-    //db WriteDate 형태 변환
-    public String changeDate(String date){
-        DateFormat dateParse = new SimpleDateFormat("yyyyMMdd");
-        DateFormat dateFormat = new SimpleDateFormat("YYYY-MM-dd");
-        String dateC = null;
-
-        try {
-           Date datePar = dateParse.parse(date);
-           dateC = dateFormat.format(datePar);
-//            System.out.println(dateC);
-        }
-        catch (ParseException e){
-            System.out.println(e);
-        }finally {
-            return dateC;
-        }
-    }
-
-    //탭->공백, 줄바꿈->공백, ','->^ 치환
-    public String changeData(String data){
-        try {
-            String replaceData = data.replace("\t", " ").replace("\r\n", " ").replace(",", "^");
-            return replaceData;
-        }
-        catch (NullPointerException e){
-            return data;
-        }
     }
 }
