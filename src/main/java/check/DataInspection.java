@@ -26,12 +26,13 @@ import java.util.Date;
 import static com.opencsv.ICSVWriter.*;
 
 public class DataInspection {
-
+//육안검사 후 CSV파일 최종 CSV파일 만들기
     public void inspectionStart(Connection connection) {
 
         try {
             Statement stmt = connection.createStatement();
             //SELECT 문을 사용할때 WHERE NOT 조건을 사용하여 WRITE_ACCOUNT(작성자계정)과 CONTACT(연락처) 둘다 없고 TITLE(제목)과 CONTENT(내용) 둘다없는 로우를 가져오지 않는다.
+            //육안 검사 후 CSV파일 DB에 넣고 각자 맞는 파일 넣고 돌리면 됨
             ResultSet drugResultSet = stmt.executeQuery("SELECT * FROM eto_19_마약판매 WHERE NOT (writer_account is null AND contact is null) AND NOT (TITLE is null AND CONTENT is null)");
             putData("ETO_19", drugResultSet);
 
@@ -81,7 +82,7 @@ public class DataInspection {
 
                     //title이 null이면 content가 title 대체
                     String content = resultSet.getString("content");
-                    String title = resultSet.getString("title");
+                    String title = textLimit(resultSet.getString("title"));
                     if(title.isEmpty()){
                         title = content;
                     }
@@ -136,6 +137,15 @@ public class DataInspection {
 
         writer.close();
 
+    }
+
+    //글길이를 60자로 제한
+    public String textLimit(String text){
+        if(text.length() >= 60){
+            String limitText = text.substring(0,60);
+            return limitText+"...";
+        }
+        return text;
     }
 
     //url 정규식을 확인
